@@ -775,5 +775,29 @@ const db = getFirestore(app);
 
     })();
   </script>
+  <script>
+(function () {
+  var rules = {
+    name:  { ok: function (v) { return /^[A-Za-z][A-Za-z\s'.\-]*$/.test(v); },
+             msg: 'Name can only contain letters and spaces (no numbers or symbols).' },
+    phone: { ok: function (v) { return /^[0-9]{9,12}$/.test(v); },
+             msg: 'Phone number must be digits only, 9 to 12 numbers (e.g. 0123456789).' }
+  };
+
+  function check(input) {
+    var rule = rules[input.name];
+    if (!rule) return;
+    var v = input.value.trim();
+    var bad = v !== '' && !rule.ok(v);
+    var err = input.closest('label').querySelector('.field-error');
+    input.setCustomValidity(bad ? rule.msg : '');
+    input.style.borderColor = bad ? '#ef4444' : '';
+    if (err) { err.textContent = bad ? rule.msg : ''; err.classList.toggle('hidden', !bad); }
+  }
+
+  document.addEventListener('input', function (e) { check(e.target); });
+  document.addEventListener('focusout', function (e) { check(e.target); });
+})();
+</script>
 </body>
 </html>
