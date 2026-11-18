@@ -241,9 +241,9 @@ const firebaseConfig = {
   measurementId: "G-LPZ2CWR0YJ"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const db = getFirestore(app);
+// Delete: const analytics = getAnalytics(app);
 
 //if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
 //  connectFirestoreEmulator(db, "127.0.0.1", 8080);
