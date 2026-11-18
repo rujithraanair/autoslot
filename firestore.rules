@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /settings/workshop {
+      allow read: if true;
+      allow create, update: if true;
+    }
+
+    match /bookings/{slotDocId} {
+      allow read: if true;
+
+      allow create: if
+        // 1. Prevent double bookings
+        !exists(/databases/$(database)/documents/bookings/$(slotDocId))
+        // 2. Ensure document ID matches dateKey_slotId24
+        && slotDocId == request.resource.data.dateKey + "_" + request.resource.data.slotId24
+        // 3. Reject slots in the past
+        && request.resource.data.slotTimestamp is timestamp
+        && request.resource.data.slotTimestamp > request.time
+        // 4. Enforce status == "Booked" and required fields
+        && request.resource.data.status == "Booked"
+        && request.resource.data.keys().hasAll([
+          "bookingRef", "idempotencyKey", "status", "dateKey",
+          "slotId24", "time", "end", "slotTimestamp",
+          "name", "phone", "plate", "model", "service"
+        ]);
+
+      allow update, delete: if false;
+    }
+  }
+}
